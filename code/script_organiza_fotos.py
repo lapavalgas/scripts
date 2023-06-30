@@ -3,8 +3,9 @@ import os
 import shutil   
 from datetime import datetime
 
-START_DIRECTORY = 'C:/Users/'
-END_DIRECTORY = 'C:/Users/'
+# START_DIRECTORY = 'I:/MAE/Meu Drive Arlene'
+START_DIRECTORY = 'I:/ORGANIZE/fotos'
+END_DIRECTORY = 'I:/ORGANIZE'
 
 CHILD_DIRECTORY_LIST = []
 PATH_IMAGE_LIST = []
@@ -25,6 +26,11 @@ def wrtie_exceptions(file_name, list):
 def getDateTime():
     now = datetime.now()
     dt_string = now.strftime("%d/%m/%Y %H:%M:%S")
+    return dt_string
+
+def getDate():
+    now = datetime.now()
+    dt_string = now.strftime("%Y%m%d%H%M")
     return dt_string
 # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # S E T E P  -  1 # # BUSCA ARQUIVOS NOS DIRETÓRIOS #
@@ -81,7 +87,7 @@ for path in PATH_ANY_DOC_LIST:
 for path in PATH_IMAGE_LIST:
     create_dirs(path)
 
-wrtie_exceptions('excepetion_list_create_dir.txt', EXCEPTION_LIST_CREATE_DIR)
+wrtie_exceptions(f'excepetion_list_create_dir_{getDate()}.txt', EXCEPTION_LIST_CREATE_DIR)
 
 # # # # # # # # # # # # # # # # # # # # # # # # # # #
 # S E T E P  -  1 # # MOVE OS ARQUIVOS              #
@@ -107,4 +113,4 @@ for path in PATH_ANY_DOC_LIST:
 for path in PATH_IMAGE_LIST:
     move_to_dirs(path)
 
-wrtie_exceptions('excepetion_list_move_file.txt', EXCEPTION_LIST_MOVE_FILE)
+wrtie_exceptions(f'excepetion_list_move_file_{getDate()}.txt', EXCEPTION_LIST_MOVE_FILE)

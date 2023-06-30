@@ -12,7 +12,7 @@ METADATA_NOT_IMAGE_KEY = 'is_image_file'
 
 DATE_TIME = 'DateTime'
 DATE_TIME_ORIGINAL = 'DateTimeOriginal'
-DATE_TIME_DIGITIZED = 'DateTimeDigitized'
+# DATE_TIME_DIGITIZED = 'DateTimeDigitized'
 
 EXCEPTION_PATH_NONE = 'O script falhou ao ler a path.'
 
@@ -47,7 +47,7 @@ class Path:
             self.metadata = { 
                 METADATA_NOT_IMAGE_KEY: is_image,
                 DATE_TIME: file_date_time,
-                DATE_TIME_DIGITIZED: file_date_time_modification,
+                # DATE_TIME_DIGITIZED: file_date_time_modification,
                 DATE_TIME_ORIGINAL: file_date_time_modification_alternative
             }
          
@@ -68,10 +68,16 @@ class Path:
             self.metadata = file_metadatas
             if self.metadata.get(DATE_TIME) == None:
                  self.metadata[DATE_TIME] = datetime.datetime.fromtimestamp(os.path.getctime(self.full_path))
+            if type(self.metadata.get(DATE_TIME) is str):
+                 self.metadata[DATE_TIME] = datetime.datetime.strptime(self.metadata[DATE_TIME], '%Y:%m:%d %H:%M:%S')
             if self.metadata.get(DATE_TIME_ORIGINAL) == None:
                  self.metadata[DATE_TIME_ORIGINAL] = datetime.datetime.fromtimestamp(os.path.getmtime(self.full_path))
-            if self.metadata.get(DATE_TIME_DIGITIZED) == None:
-                 self.metadata[DATE_TIME_DIGITIZED] = datetime.datetime.fromtimestamp(pathlib.Path(self.full_path).stat().st_mtime)
+            if type(self.metadata.get(DATE_TIME_ORIGINAL) is str):
+                 self.metadata[DATE_TIME_ORIGINAL] = datetime.datetime.strptime(self.metadata[DATE_TIME_ORIGINAL], '%Y:%m:%d %H:%M:%S')
+            # if self.metadata.get(DATE_TIME_DIGITIZED) == None:
+            #      self.metadata[DATE_TIME_DIGITIZED] = datetime.datetime.fromtimestamp(pathlib.Path(self.full_path).stat().st_mtime)
+            # if type(self.metadata.get(DATE_TIME_DIGITIZED) is str):
+            #      self.metadata[DATE_TIME_DIGITIZED] = datetime.datetime.strptime(self.metadata[DATE_TIME_DIGITIZED], '%Y:%m:%d %H:%M:%S')
         except:
             self.__generate_failed_to_read_metadata__(is_image=True)
 
@@ -102,9 +108,14 @@ class Path:
         dates = [
             self.metadata.get(DATE_TIME), 
             self.metadata.get(DATE_TIME_ORIGINAL), 
-            self.metadata.get(DATE_TIME_DIGITIZED)
+            # self.metadata.get(DATE_TIME_DIGITIZED)
             ]
         dates_res = [i for i in dates if i != None]
+        # dates_less_none = [i for i in dates if i != None]
+        # dates_res = []
+        # for dt in dates_less_none:
+        #      if not type(dt) is datetime.datetime:
+        #           dates_res.append(datetime.datetime.strptime(dt, '%Y:%m:%d %H:%M:%S'))
         if dates_res:
             dates_res.sort()
             if type(dates_res[0]) == str:
