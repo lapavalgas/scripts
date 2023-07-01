@@ -3,7 +3,7 @@ import os
 import shutil   
 from datetime import datetime
 
-USE_EXIFTAGS = False # Config to use or not ExifTags lib
+USE_EXIFTAGS = True # Config to use or not ExifTags lib
 
 START_DIRECTORY = 'I:/_ORGANIZE/__LOTE'
 END_DIRECTORY = 'I:/_ORGANIZE/__CONCLUIDO'
