@@ -1,5 +1,6 @@
 import os
 import datetime
+from PIL import Image 
 from PIL.ExifTags import TAGS 
 
 PATTERN_SLASH = '/'
@@ -11,6 +12,8 @@ DATE_TIME_ORIGINAL = 'DateTimeOriginal'
 DIR = 'DIR'
 DOC = 'DOC'
 IMG = 'IMG'
+
+PATTERN_DATETIME_EXIFTAGS = '%Y:%m:%d %H:%M:%S'
 
 class Path:
 
@@ -31,8 +34,39 @@ class Path:
         if file_extension == None:
             return False
         return file_extension.lower().endswith(('.png', '.jpg', '.JPG', '.jpeg', '.tiff', '.bmp', '.gif'))
+    
+    @classmethod
+    def get_metadatas(clas, full_path):
+        datetime_metadatas = []
+        datetime_metadatas.append(datetime.datetime.fromtimestamp(os.path.getatime(full_path)))
+        datetime_metadatas.append(datetime.datetime.fromtimestamp(os.path.getctime(full_path)))
+        datetime_metadatas.append(datetime.datetime.fromtimestamp(os.path.getmtime(full_path)))
+        return datetime_metadatas         
 
-    def __init__(self, path) -> None:
+    @classmethod
+    def get_image_metadata(cls, full_path):
+        datetime_metadatas = []
+        metadatas = {}
+        try: 
+          image = Image.open(full_path)
+          for tag, value in image._getexif().items():
+               if tag in TAGS:
+                    metadatas[TAGS[tag]] = value
+          if metadatas.get('DateTime') != None:
+              datetime_metadatas.append(datetime.datetime.strptime(metadatas.get('DateTime'), PATTERN_DATETIME_EXIFTAGS))
+          if metadatas.get('DateTimeOriginal') != None:
+              datetime_metadatas.append(datetime.datetime.strptime(metadatas.get('DateTimeOriginal'), PATTERN_DATETIME_EXIFTAGS))
+          # # # The 'DateTimeDigitized' can be a date before than the photo has taken \ weired!
+          # if metadatas.get('DateTimeDigitized') != None:
+          #     datetime_metadatas.append(datetime.datetime.strptime(metadatas.get('DateTimeDigitized'), PATTERN_DATETIME_EXIFTAGS))
+          datetime_metadatas.append(datetime.datetime.fromtimestamp(os.path.getatime(full_path)))
+          datetime_metadatas.append(datetime.datetime.fromtimestamp(os.path.getctime(full_path)))
+          datetime_metadatas.append(datetime.datetime.fromtimestamp(os.path.getmtime(full_path)))
+          return datetime_metadatas
+        except:
+          return Path.get_metadatas(full_path)
+
+    def __init__(self, path, USE_EXIFTAGS) -> None:
         path_and_file_name, file_extension = os.path.splitext(path)
         if path == 'C:/Users/lapav/Downloads/teste nova classe/CDs/fotos/2000-2009/2002/2002012_dezembro/1.JPG':
             print('hello')
@@ -44,9 +78,10 @@ class Path:
             self.file_name = full_path_list.pop(-1)
             self.directory_path = '/'.join(full_path_list)
             self.full_path = f'{self.directory_path}/{self.file_name}{file_extension}'
-            datetime_metadatas = []
-            datetime_metadatas.append(datetime.datetime.fromtimestamp(os.path.getctime(self.full_path)))
-            datetime_metadatas.append(datetime.datetime.fromtimestamp(os.path.getmtime(self.full_path)))
+            if USE_EXIFTAGS and Path.__validate_file_extension_as_image__(self.file_extension):
+                datetime_metadatas = Path.get_image_metadata(self.full_path)
+            else:   
+               datetime_metadatas = Path.get_metadatas(self.full_path)
             datetime_metadatas.sort()
             self.datetime_oldest = datetime_metadatas[0]
         else:

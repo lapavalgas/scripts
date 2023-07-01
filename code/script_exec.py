@@ -3,8 +3,10 @@ import os
 import shutil   
 from datetime import datetime
 
-START_DIRECTORY = 'C:/Users/lapav/Downloads/teste nova classe/CDs'
-END_DIRECTORY = 'C:/Users/lapav/Downloads/teste nova classe'
+USE_EXIFTAGS = False # Config to use or not ExifTags lib
+
+START_DIRECTORY = 'I:/_ORGANIZE/__LOTE'
+END_DIRECTORY = 'I:/_ORGANIZE/__CONCLUIDO'
 
 LIST_DIRECTORIES = []
 LIST_IMAGES = []
@@ -48,7 +50,7 @@ def log_exception(exceptions_list, str):
 # # # # # # # # # # # #
 
 def mapper_path_to_object(directory, str_path):
-    object_path = __create_path_instance.Path(f'{directory}/{str_path}')
+    object_path = __create_path_instance.Path(f'{directory}/{str_path}', USE_EXIFTAGS)
     if object_path.file_type == DIR:
         LIST_DIRECTORIES.append(object_path.full_path)
     if object_path.file_type == DOC:
