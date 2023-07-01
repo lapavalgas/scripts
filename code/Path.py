@@ -1,8 +1,5 @@
 import os
 import datetime
-import pathlib
-from dateutil import parser
-from PIL import Image 
 from PIL.ExifTags import TAGS 
 
 PATTERN_SLASH = '/'
