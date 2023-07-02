@@ -78,7 +78,6 @@ class Path:
                # # # The 'DateTimeDigitized' can be a date before than the photo has taken \ weired!
                # datetime_metadatas.append(Path.get_datatime_from_exif(metadatas.get('DateTimeDigitized')))
           except:
-               print('# debug') # delete this line
                pass
           finally:
                datetime_metadatas_res = [i for i in datetime_metadatas if i != None]
@@ -86,8 +85,6 @@ class Path:
 
     def __init__(self, path, USE_EXIFTAGS) -> None:
         path_and_file_name, file_extension = os.path.splitext(path)
-        if path == 'C:/Users/lapav/Downloads/teste nova classe/CDs/fotos/2000-2009/2002/2002012_dezembro/1.JPG':
-            print('hello')
         if Path.__is_file__(path, file_extension):
             self.is_file = True
             self.file_extension = file_extension.lower()
