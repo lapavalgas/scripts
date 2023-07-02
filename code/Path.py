@@ -58,7 +58,7 @@ class Path:
 
     @classmethod
     def get_datatime_from_exif(cls, datetime_str):
-        if str is None:
+        if not str is None:
           try:
                date_str, time_str = datetime_str.split(' ')
                hour_str = time_str[:2]
