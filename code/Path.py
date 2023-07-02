@@ -57,10 +57,14 @@ class Path:
         return datetime_metadatas         
 
     @classmethod
-    def get_datatime_from_exif(cls, str):
-        if str != None:
+    def get_datatime_from_exif(cls, datetime_str):
+        if str is None:
           try:
-               return datetime.datetime.strptime(str, PATTERN_DATETIME_EXIFTAGS)
+               date_str, time_str = datetime_str.split(' ')
+               hour_str = time_str[:2]
+               hour_str = '23' if hour_str == '24' else hour_str
+               corrected_datetime_str = f'{date_str} {hour_str}{time_str[2:]}'
+               return datetime.datetime.strptime(corrected_datetime_str, PATTERN_DATETIME_EXIFTAGS)
           except:
                pass
 
