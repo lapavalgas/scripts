@@ -4,6 +4,7 @@ import shutil
 from datetime import datetime
 
 USE_EXIFTAGS = True # Config to use or not ExifTags lib
+USE_FILE_NAME_DATETIME = True
 
 START_DIRECTORY = 'I:/'
 END_DIRECTORY = 'I:/'
@@ -51,7 +52,7 @@ def log_exception(exceptions_list, str):
 # # # # # # # # # # # #
 
 def mapper_path_to_object(directory, str_path):
-    object_path = __create_path_instance.Path(f'{directory}/{str_path}', USE_EXIFTAGS)
+    object_path = __create_path_instance.Path(f'{directory}/{str_path}', USE_EXIFTAGS, USE_FILE_NAME_DATETIME)
     if object_path.file_type == DIR:
         LIST_DIRECTORIES.append(object_path.full_path)
     if object_path.file_type == DOC:
@@ -103,9 +104,38 @@ wrtie_log(exceptions_create_dir_log_file_name, LIST_EXCEPTIONS_TO_CREATE_DIR)
 #   S E T E P  -  3   # 
 # # # # # # # # # # # #
 
-def create_log_str(old_path, destine_path, is_success):
+# the commented code below is a log pattern to rearrange 
+# into the pattern that the PAth.destine_directory() 
+# function creates, it cannot be used in any context!!!
+
+# import re
+
+# def extract_year(path):
+#     pattern = r'(?:20|19)\d{2}'
+#     result = re.findall(pattern, path)
+#     if result:
+#         return result[-1]
+#     else:
+#         return None
+
+# def is_the_two_years_the_same(object_path):
+#     old_year = extrair_ano(object_path.full_path)
+#     new_year = extrair_ano(object_path.get_year())
+#     if old_year and new_year:
+#         if old_year != new_year:
+#             print("Os anos são diferentes.")
+#             # return False
+#             return "Os anos sao diferentes."
+#         else:
+#             print("Os anos são iguais.")
+#             # return True
+#             return "Os anos sao iguais."
+
+def create_log_str(old_path, destine_path, is_success, object_path):
     log = f'from:\t{old_path}\nto:\t\t{destine_path}\n'
-    return f'{log}PASS\n\n' if is_success else f'{log}FAIL\n\n'
+    # result_log = is_the_two_years_the_same(object_path)
+    return f'{log}PASS\t\n\n' if is_success else f'{log}FAIL\n\n'
+    # return f'{log}PASS\t{result_log}\n\n' if is_success else f'{log}FAIL\t{result_log}\n\n'
 
 def move_file_exception_str(object_path):
     return f'{get_datetime(DATE_TIME_FOR_EXCEPTIONS)} - Extension: {object_path.file_extension}\t- FAILED to moving \t{object_path.full_path}\n \t\t\t\t\t\t{object_path.destine_full_path(END_DIRECTORY)}\nFAILED -\tNEED ATTENTION\n'
@@ -117,10 +147,10 @@ def move_file_to_destine(object_path):
     print(destine_path)
     try:
         shutil.move(old_path, destine_path)
-        LIST_LOGS_OLD_PATH_TO_NEW_DESTINE.append(create_log_str(old_path, destine_path, True))
+        LIST_LOGS_OLD_PATH_TO_NEW_DESTINE.append(create_log_str(old_path, destine_path, is_success=True, object_path=object_path))
         pass
     except:
-        LIST_LOGS_OLD_PATH_TO_NEW_DESTINE.append(create_log_str(old_path, destine_path, False)) # This is the all log
+        LIST_LOGS_OLD_PATH_TO_NEW_DESTINE.append(create_log_str(old_path, destine_path, True, object_path)) # This is the all log
         log_exception(LIST_EXCEPTIONS_TO_MOVE_FILE, move_file_exception_str(object_path)) # This log is about shutil.move() only
 
 

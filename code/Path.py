@@ -1,5 +1,6 @@
-import os
+import os, re
 import datetime
+from datetime import date
 from PIL import Image, ExifTags 
 from PIL.ExifTags import TAGS 
 
@@ -68,6 +69,42 @@ class Path:
           except:
                pass
 
+    @classmethod 
+    def extract_datetime_from_file_name(cls, nome_arquivo):
+     # TODO: can implement a list of patterns to test, better than pick randomly by regex
+     filename_datatime_pattern = r'(\d{4})(\d{2})(\d{2})'
+     match = re.search(filename_datatime_pattern, nome_arquivo)
+     if match:
+          year = int(match.group(1))
+          month = int(match.group(2))
+          day = int(match.group(3))
+          current_year = date.today().year
+          if year < 2000 or year > current_year:
+               return None
+          if year >= 13:
+              return None 
+          if year >= 31:
+              return None
+          try:
+               data = datetime.datetime(year, month, day)
+               return data
+          except ValueError:
+               if month > 12:
+                    data = datetime.datetime(year, month, 1)
+                    return data
+               else:
+                    data = datetime.datetime(year, 1, 1)
+                    return data
+     else:
+          return None
+
+    @classmethod
+    def get_the_file_name_datetime_better_than_metadatas(cls, file_name, oldest_datetime):
+        file_name_datetime = Path.extract_datetime_from_file_name(file_name)
+        if file_name_datetime == None:
+          return oldest_datetime
+        return file_name_datetime if file_name_datetime < oldest_datetime else oldest_datetime
+
     @classmethod #
     def get_metadata_exiftags(cls, full_path):
           datetime_metadatas = Path.get_datetime_metadatas(full_path)
@@ -87,7 +124,7 @@ class Path:
                datetime_metadatas_res = [i for i in datetime_metadatas if i != None]
                return datetime_metadatas_res
 
-    def __init__(self, path, USE_EXIFTAGS) -> None:
+    def __init__(self, path, USE_EXIFTAGS, USE_FILE_NAME_DATETIME) -> None:
         path_and_file_name, file_extension = os.path.splitext(path)
         if Path.__is_file__(path, file_extension):
             self.is_file = True
@@ -103,6 +140,8 @@ class Path:
                datetime_metadatas = Path.get_datetime_metadatas(self.full_path)
             datetime_metadatas.sort()
             self.datetime_oldest = datetime_metadatas[0]
+            if USE_FILE_NAME_DATETIME:
+               self.datetime_oldest = Path.get_the_file_name_datetime_better_than_metadatas(self.file_name, self.datetime_oldest)
         else:
             self.is_file = False
             self.directory_path = path
