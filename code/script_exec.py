@@ -5,8 +5,8 @@ from datetime import datetime
 
 USE_EXIFTAGS = True # Config to use or not ExifTags lib
 
-START_DIRECTORY = 'I:/_ORGANIZE/__LOTE'
-END_DIRECTORY = 'I:/_ORGANIZE/__CONCLUIDO'
+START_DIRECTORY = 'I:/'
+END_DIRECTORY = 'I:/'
 
 LIST_DIRECTORIES = []
 LIST_IMAGES = []
@@ -18,6 +18,7 @@ EXCEPTION_ALREADY_EXISTS = 'ALREADY EXISTS'
 EXCEPTION_NEED_ATTENTION = 'NEED ATTENTION'
 
 LIST_LOGS = []
+LIST_LOGS_OLD_PATH_TO_NEW_DESTINE = []
 
 DATE_TIME_FOR_EXCEPTIONS = "%d/%m/%Y %H:%M:%S"
 DATE_TIME_FOR_FILE_NAME = "%Y%m%d%H%M"
@@ -102,23 +103,35 @@ wrtie_log(exceptions_create_dir_log_file_name, LIST_EXCEPTIONS_TO_CREATE_DIR)
 #   S E T E P  -  3   # 
 # # # # # # # # # # # #
 
+def create_log_str(old_path, destine_path, is_success):
+    log = f'from:\t{old_path}\nto:\t\t{destine_path}\n'
+    return f'{log}PASS\n\n' if is_success else f'{log}FAIL\n\n'
+
 def move_file_exception_str(object_path):
     return f'{get_datetime(DATE_TIME_FOR_EXCEPTIONS)} - Extension: {object_path.file_extension}\t- FAILED to moving \t{object_path.full_path}\n \t\t\t\t\t\t{object_path.destine_full_path(END_DIRECTORY)}\nFAILED -\tNEED ATTENTION\n'
 
 def move_file_to_destine(object_path):
     old_path = object_path.full_path
     destine_path = object_path.destine_full_path(END_DIRECTORY)
+    print(old_path)
+    print(destine_path)
     try:
         shutil.move(old_path, destine_path)
+        LIST_LOGS_OLD_PATH_TO_NEW_DESTINE.append(create_log_str(old_path, destine_path, True))
+        pass
     except:
-        log_exception(LIST_EXCEPTIONS_TO_MOVE_FILE, move_file_exception_str(object_path))
+        LIST_LOGS_OLD_PATH_TO_NEW_DESTINE.append(create_log_str(old_path, destine_path, False)) # This is the all log
+        log_exception(LIST_EXCEPTIONS_TO_MOVE_FILE, move_file_exception_str(object_path)) # This log is about shutil.move() only
+
 
 for object_path in LIST_DOCS:
     move_file_to_destine(object_path)
 
 for object_path in LIST_IMAGES:
     move_file_to_destine(object_path)
-    
-exceptions_move_file_log_file_name = f'{get_datetime(DATE_TIME_FOR_FILE_NAME)}_exceptions_to_move_file_log.txt'
 
+exceptions_move_file_log_file_name = f'{get_datetime(DATE_TIME_FOR_FILE_NAME)}_exceptions_to_move_file_log.txt'
 wrtie_log(exceptions_create_dir_log_file_name, LIST_EXCEPTIONS_TO_CREATE_DIR)
+
+move_log_file_name = f'{get_datetime(DATE_TIME_FOR_FILE_NAME)}_move_log.txt'
+wrtie_log(move_log_file_name, LIST_LOGS_OLD_PATH_TO_NEW_DESTINE)
